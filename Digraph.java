@@ -78,13 +78,6 @@ public class Digraph {
         reset();
     }
 
-    public void add_warc( Integer id1, Integer id2, Integer weight ) {
-		add_arc( id1, id2 );
-		Vertex v1 = vertex_set.get(id1);
-		if( v1 != null)
-			v1.add_weight( id2, weight );
-    }
-
     public void add_edge( Integer id1, Integer id2) {
         Vertex v1 = vertex_set.get( id1 );
         Vertex v2 = vertex_set.get( id2 );
@@ -120,14 +113,25 @@ public class Digraph {
         return max;
     }
 
-	public void del_edge(Integer id1, Integer id2) {
-		Vertex v1 = vertex_set.get( id1 );
-		Vertex v2 = vertex_set.get( id2 );
-		v1.nbhood.remove(v2.id);
-		v2.nbhood.remove(v1.id);
-	}
+	public Graph subjacente() {
 
-
+		Graph g2 = new Graph();
+		
+		for( Vertex v11 : this.vertex_set.values()) {
+				g2.add_vertex( v11.id );
+		}
+		
+		for( Vertex v11 : this.vertex_set.values()) {
+				for( Vertex v12 : v11.nbhood.values()) {
+						Vertex v21 = g2.vertex_set.get( v11.id );
+						Vertex v22 = g2.vertex_set.get( v12.id );
+						v21.add_neighbor( v22 );
+						v22.add_neighbor( v21 );
+						add_edge(v21.id, v22.id);
+				}
+		}
+		return g2;
+}
 
 
   public boolean is_undirected() {
@@ -167,8 +171,8 @@ public class Digraph {
         }
     }
 
-	public boolean is_connected() {
-		BFS(1);
+	public boolean is_connected() { // essa função executa uma busca em largura para descobrir se o grafo é conexo
+		BFS(1); // a busca pode ser em qualquer vertice, vou assumir que existe o vertice 1
 		for(Vertex vertice:vertex_set.values()) {
 			if(vertice.dist==null) { // Se algum vertice nao for alcançavel pela raiz, então o grafo não é conexo
 				return false;
@@ -188,50 +192,6 @@ public class Digraph {
 
 
 
-	
-	public List<Vertex> fleury() {
-
-		List<Vertex> circuito_euleriano = new ArrayList<Vertex>();
-
-		Vertex v1 = vertex_set.get(1); // vou começar no vertice 1
-		circuito_euleriano.add(v1); // adiciono esse vertice
-		print();
-
-		while(true) {
-			int indice=0;
-			System.out.println(v1.id);
-			int quantidade_vizinhos = v1.degree();
-			System.out.println("quantidade_vizinhos: "+quantidade_vizinhos);
-			if(quantidade_vizinhos==0) {//terminei o algoritmo
-				break;
-			}
-			Object[] vizinhos = v1.nbhood.values().toArray();
-			for(Object vizinho : vizinhos) {
-				Vertex v2 = (Vertex) vizinho;
-				indice++;
-				del_edge(v1.id, v2.id);
-				if(!this.is_connected() && indice!=quantidade_vizinhos) { //removi uma aresta que nao é conexa e nao é a ultima, vou reverter
-					System.out.println("removi uma aresta que nao é conexa e nao é a ultima, vou reverter"+v1.id+v2.id);
-					this.add_edge(v1.id, v2.id);
-				}
-				else {
-					circuito_euleriano.add(v2);
-					if(v1.degree()==0) {
-						vertex_set.remove(v1.id);
-					}
-					// print();
-					v1 = v2;
-					break;
-				}
-			}
-		}
-		System.out.println("Circuito Euleriano: ");
-		for(Vertex vertice:circuito_euleriano) {
-			System.out.printf("%d ",vertice.id);
-		}
-
-		return circuito_euleriano;
-	}
 
 	public void remove_vertices_isolados() {
 		Object[] vertices = vertex_set.values().toArray();
@@ -244,18 +204,21 @@ public class Digraph {
 	}
 
 	public List<Vertex> encontra_circuito_euleriano() {
-		this.remove_vertices_isolados();
-
 		if(!this.is_undirected()) {
 			System.out.println("\n\nEntrada inválida! esse grafo é direcionado.");
 			return null;
 		}
-		if(!this.is_connected()||this.contem_vertice_de_grau_impar()) {
+
+		Graph g2 = this.subjacente(); // crio um grafo novo afim de não alterar o original
+
+		g2.remove_vertices_isolados();
+
+		if(!g2.is_connected()||g2.contem_vertice_de_grau_impar()) {
 			System.out.println("\n\nEsse grafo não contem circuito euleriano");
 			return null;
 		}
 
-		return fleury();
+		return g2.fleury();
 
 	}
 }
