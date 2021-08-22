@@ -1,18 +1,12 @@
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
 public class Digraph {
-	// vertex set
-    protected HashMap< Integer, Vertex> vertex_set;
-    protected int time;
-    private Boolean acyclic;
+    protected HashMap<Integer, Vertex> vertex_set; // armazena todos os vertices do grafo
 
     public Digraph() {
         vertex_set = new HashMap< Integer, Vertex>();
@@ -30,9 +24,8 @@ public class Digraph {
             System.out.println("\nNão direcionado: falso");
     }
     
-	public void open_text( String arq_ent ) {
+	public void open_text( String arq_ent ) { // parser de arquivos para grafo
 		String thisLine = null;
-        vertex_set = new HashMap<Integer,Vertex>();
 		String pieces[ ];
 
 		try {
@@ -43,11 +36,13 @@ public class Digraph {
 			    thisLine = thisLine.replaceAll("\\s+", " ");
 			    pieces = thisLine.split(" ");
 			    int v1 = Integer.parseInt( pieces[0] );
-			    this.add_vertex( v1 );
+                if(vertex_set.get(v1)==null) // evitar aviso desnecessario de vertice ja existente
+			        this.add_vertex( v1 );
 			    for( int i = 2; i < pieces.length; i++ ) {
    					int v2 = Integer.parseInt( pieces[ i ] );
    					// pode ser a primeira ocorrência do v2
-					this.add_vertex( v2 );
+                    if(vertex_set.get(v2)==null) // evitar aviso desnecessario de vertice ja existente
+					    this.add_vertex( v2 );
 					this.add_arc( v1, v2 );
 				}
 		    }       
@@ -145,8 +140,6 @@ public class Digraph {
   }
 
 	protected void reset() {
-		acyclic = null;
-		time = 0;
 		for( Vertex v1 : vertex_set.values() )
 			v1.reset();
 	}
@@ -204,17 +197,17 @@ public class Digraph {
 	}
 
 	public List<Vertex> encontra_circuito_euleriano() {
-		if(!this.is_undirected()) {
+		if(!this.is_undirected()) { // O enunciado diz para considerar um grafo não-direcionado
 			System.out.println("\n\nEntrada inválida! esse grafo é direcionado.");
 			return null;
 		}
 
-		Graph g2 = this.subjacente(); // crio um grafo novo afim de não alterar o original
+		Graph g2 = this.subjacente(); // crio um grafo subjacente novo afim de não alterar o original
 
-		g2.remove_vertices_isolados();
+		g2.remove_vertices_isolados(); // removo os vertices isolados, pois eles nao alteram o circuito euleriano (nao tem arestas)
 
-		if(!g2.is_connected()||g2.contem_vertice_de_grau_impar()) {
-			System.out.println("\n\nEsse grafo não contem circuito euleriano");
+		if(!g2.is_connected()||g2.contem_vertice_de_grau_impar()) { // para conter um circuito euleriano, precisa ter todos os vertices
+			System.out.println("\n\nEsse grafo não contem circuito euleriano"); //  de grau par e todos os vertices nao isolados precisam ser conexos
 			return null;
 		}
 

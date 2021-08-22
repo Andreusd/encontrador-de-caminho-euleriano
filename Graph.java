@@ -27,7 +27,7 @@ public class Graph extends Digraph {
 
 		Vertex v1 = vertex_set.get(1); // vou começar no vertice 1 (assumindo que ele existe)
 		circuito_euleriano.add(v1); // adiciono esse vertice
-		print(); //debug
+		// print(); //debug
 
 		int quantidade_vizinhos = -1; //inicio com um valor absurdo
 		while(quantidade_vizinhos!=0) { //se o vertice nao tem vizinho, significa que terminei o algoritmo
@@ -56,7 +56,7 @@ public class Graph extends Digraph {
 			}
 		}
 
-		System.out.println("Circuito Euleriano: "); // imprime o circuito conforme o enunciado
+		System.out.println("\n\nCircuito Euleriano: "); // imprime o circuito conforme o enunciado
 		for(Vertex vertice:circuito_euleriano) {
 			System.out.printf("%d ",vertice.id);
 		}
