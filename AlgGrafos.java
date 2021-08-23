@@ -10,6 +10,7 @@ public class AlgGrafos {
             int escolha = s1.nextInt();
             switch(escolha) {
                 case 0:
+                    s1.close();
                     return;
                 case 1:
                     g1.BFS(1);
