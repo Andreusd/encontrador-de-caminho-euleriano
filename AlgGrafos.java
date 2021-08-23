@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class AlgGrafos {
 
-    public static void menu(Digraph g1) {
+    public static void menu(Graph g1) {
         Scanner s1 = new Scanner(System.in);
         String textoMenu = "\n\n0 Sair\n1 Print\n2 Ler o arquivo novamente\n3 Encontrar circuito euleriano novamente";
         while(true) {
@@ -17,7 +17,7 @@ public class AlgGrafos {
                     break;
                 case 2:
                     String arq_ent = "myfiles/grafo01.txt";
-                    g1 = new Digraph();
+                    g1 = new Graph();
                     g1.open_text( arq_ent );
                     break;
                 case 3:
@@ -29,7 +29,7 @@ public class AlgGrafos {
 
     public static void main(String args[]) {
         
-        Digraph g1 = new Digraph(); // Cria o grafo
+        Graph g1 = new Graph(); // Cria o grafo
 
         String arq_ent = "myfiles/grafo01.txt"; // Nome do arquivo
 
