@@ -5,8 +5,8 @@ import java.util.List;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
-public class Digraph {
-    protected HashMap<Integer, Vertex> vertex_set; // armazena todos os vertices do grafo
+public class Digraph { // grafo direcionado
+    protected HashMap<Integer, Vertex> vertex_set; // Armazena os vertices do grafo
 
     public Digraph() {
         vertex_set = new HashMap< Integer, Vertex>();
@@ -83,10 +83,6 @@ public class Digraph {
         v1.add_neighbor( v2 );
         v2.add_neighbor( v1 );
         reset();
-
-// ou
-//        add_arc( id1, id2 );
-//        add_arc( id2, id1 );
     }
     
     public void del_vertex( int id ) {
@@ -108,28 +104,23 @@ public class Digraph {
         return max;
     }
 
-	public Graph subjacente() {
+	public Graph subjacente() { // obtem o grafo subjacente 
 
-		Graph g2 = new Graph();
-		
-		for( Vertex v11 : this.vertex_set.values()) {
-				g2.add_vertex( v11.id );
+		Graph g2 = new Graph();		
+		for( Vertex v1 : this.vertex_set.values()) {
+				g2.add_vertex( v1.id );
 		}
 		
-		for( Vertex v11 : this.vertex_set.values()) {
-				for( Vertex v12 : v11.nbhood.values()) {
-						Vertex v21 = g2.vertex_set.get( v11.id );
-						Vertex v22 = g2.vertex_set.get( v12.id );
-						v21.add_neighbor( v22 );
-						v22.add_neighbor( v21 );
-						add_edge(v21.id, v22.id);
+		for( Vertex v1 : this.vertex_set.values()) {
+				for( Vertex v2 : v1.nbhood.values()) {
+						g2.add_edge(v1.id, v2.id);
 				}
 		}
 		return g2;
 }
 
 
-  public boolean is_undirected() {
+  public boolean is_undirected() { // determina se o grafo é não direcionado
         for( Vertex v1 : vertex_set.values()) {
             for( Vertex v2 : v1.nbhood.values()) {
                 if (v2.nbhood.get(v1.id) == null)
@@ -137,7 +128,7 @@ public class Digraph {
             }
         }
         return true;
-  }
+    }
 
 	protected void reset() {
 		for( Vertex v1 : vertex_set.values() )
@@ -145,7 +136,7 @@ public class Digraph {
 	}
 
     // O(m)
-    public void BFS( Integer id_root ) {
+    public void BFS( Integer id_root ) { // Busca em largura
 			reset();
         Vertex root = vertex_set.get( id_root );
         root.dist = 0;
@@ -172,29 +163,15 @@ public class Digraph {
 			}
 		}
 		return true;
-  }
+    }
 
-	public boolean contem_vertice_de_grau_impar() {
-		for(Vertex vertice:vertex_set.values())
-			if(vertice.degree() % 2 != 0)
+	public boolean contem_vertice_de_grau_impar() { // essa função determina se há algum vertice de grau ímpar
+		for(Vertex vertice:vertex_set.values()) // itera pelos vertices
+			if(vertice.degree() % 2 != 0) // se algum vertice tiver grau impar, retorna verdadeiro
 				return true;
 		return false;
 	}
 
-
-
-
-
-
-	public void remove_vertices_isolados() {
-		Object[] vertices = vertex_set.values().toArray();
-		for(Object vertice:vertices) {
-			Vertex v1 = (Vertex) vertice;
-			if(v1.degree()==0) {
-				vertex_set.remove(v1.id);
-			}
-		}
-	}
 
 	public List<Vertex> encontra_circuito_euleriano() {
 		if(!this.is_undirected()) { // O enunciado diz para considerar um grafo não-direcionado
@@ -202,16 +179,21 @@ public class Digraph {
 			return null;
 		}
 
-		Graph g2 = this.subjacente(); // crio um grafo subjacente novo afim de não alterar o original
+		Graph g2 = this.subjacente(); // crio um grafo subjacente novo para não alterar o original
 
 		g2.remove_vertices_isolados(); // removo os vertices isolados, pois eles nao alteram o circuito euleriano (nao tem arestas)
 
-		if(!g2.is_connected()||g2.contem_vertice_de_grau_impar()) { // para conter um circuito euleriano, precisa ter todos os vertices
-			System.out.println("\n\nEsse grafo não contem circuito euleriano"); //  de grau par e todos os vertices nao isolados precisam ser conexos
+		if(!g2.is_connected()) { // para conter um circuito euleriano, todos os vertices não isolados precisam ser conexos
+			System.out.println("\n\nEsse grafo não contêm circuito euleriano pois há vertice de grau não-nulo isolado"); 
 			return null;
 		}
 
-		return g2.fleury();
+        if(g2.contem_vertice_de_grau_impar()) { // para conter um circuito euleriano, todos os vertices devem ter grau par
+			System.out.println("\n\nEsse grafo não contem circuito euleriano pois algum vertice tem grau ímpar"); 
+			return null;
+        }
+
+		return g2.fleury(this);
 
 	}
 }
